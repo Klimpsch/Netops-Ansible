@@ -1,0 +1,10 @@
+{# "@" is the default multiline_delimiter for cisco.ios.ios_config, and it also #}
+{# works when you paste the rendered config into a console.                     #}
+banner login @
+{{ base_banner_login | trim }}
+@
+{% if base_banner_exec %}
+banner exec @
+{{ base_banner_exec | trim }}
+@
+{% endif %}

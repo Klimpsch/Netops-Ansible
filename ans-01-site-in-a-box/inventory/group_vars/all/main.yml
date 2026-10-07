@@ -1,0 +1,43 @@
+---
+# Site-wide values for the base role. Secrets come from vault.yml.
+
+base_domain_name: corp.example.net
+base_mgmt_interface: Loopback0
+
+base_timezone: AEST 10 0
+base_summer_time: AEDT recurring 1 Sun Oct 2:00 1 Sun Apr 3:00
+base_ntp_servers:
+  - address: 10.10.0.1
+    prefer: true
+  - address: 10.10.0.2
+
+base_dns_servers:
+  - 10.10.0.53
+  - 10.10.0.54
+
+base_tacacs_servers:
+  - name: ISE-01
+    address: 10.10.0.10
+  - name: ISE-02
+    address: 10.10.0.11
+
+base_snmp_contact: netops@example.net
+base_snmp_allowed:
+  - 10.10.0.0 0.0.0.255
+base_snmp_trap_hosts:
+  - 10.10.0.20
+
+base_syslog_hosts:
+  - 10.10.0.30
+  - 10.10.0.31
+
+base_mgmt_allowed:
+  - 10.10.0.0 0.0.0.255
+  - 10.20.0.0 0.0.255.255
+
+# Map vaulted values to role variables.
+base_local_admin_secret_hash: "{{ vault_local_admin_secret_hash }}"
+base_enable_secret_hash: "{{ vault_enable_secret_hash }}"
+base_tacacs_key: "{{ vault_tacacs_key }}"
+base_snmp_auth_password: "{{ vault_snmp_auth_password }}"
+base_snmp_priv_password: "{{ vault_snmp_priv_password }}"

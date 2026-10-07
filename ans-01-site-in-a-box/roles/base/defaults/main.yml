@@ -1,0 +1,61 @@
+---
+# Defaults for the base role. Override them in group_vars or host_vars.
+# Secrets have no defaults. Define them in an Ansible Vault file.
+
+# Where rendered configs go, and whether to push them to devices.
+base_build_dir: "{{ playbook_dir }}/build"
+base_push: true
+
+# Hostname and domain
+base_hostname: "{{ inventory_hostname }}"
+base_domain_name: example.net
+
+# Source interface for NTP, DNS, syslog, SNMP, TACACS+, and SSH
+base_mgmt_interface: Loopback0
+
+# NTP
+base_timezone: UTC 0 0
+base_summer_time: ""
+base_ntp_servers: []          # List of {address, prefer}
+
+# DNS
+base_dns_servers: []
+
+# AAA and TACACS+
+base_local_admin_username: 'admin'
+base_tacacs_group: TACACS-SERVERS
+base_tacacs_servers: []       # List of {name, address}
+
+# SNMPv3
+base_snmp_location: ""
+base_snmp_contact: ""
+base_snmp_view: ALL-VIEW
+base_snmp_group: SNMPV3-RO
+base_snmp_user: snmp-monitor
+base_snmp_auth_protocol: sha
+base_snmp_priv_protocol: aes 128
+base_snmp_acl_name: SNMP-MGMT
+base_snmp_allowed: []         # List of "network wildcard" strings
+base_snmp_trap_hosts: []
+
+# Syslog
+base_syslog_hosts: []
+base_syslog_trap_level: informational
+base_syslog_buffer_size: 64000
+
+# Banners. Don't use "@" in banner text: the template uses it as the delimiter.
+base_banner_login: |
+  Authorized access only. Activity on this device is logged and monitored.
+  Disconnect now if you are not an authorized user.
+base_banner_exec: ""
+
+# SSH hardening. Check which algorithms your IOS-XE version supports.
+base_ssh_timeout: 60
+base_ssh_retries: 3
+base_ssh_encryption: aes256-ctr aes192-ctr aes128-ctr
+base_ssh_mac: hmac-sha2-512 hmac-sha2-256
+base_ssh_kex: ecdh-sha2-nistp384 ecdh-sha2-nistp256
+base_mgmt_acl_name: MGMT-SSH
+base_mgmt_allowed: []         # List of "network wildcard" strings
+base_vty_range: 0 15
+base_exec_timeout: 10 0

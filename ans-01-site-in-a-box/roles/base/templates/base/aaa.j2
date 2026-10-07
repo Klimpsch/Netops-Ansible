@@ -1,0 +1,24 @@
+{# Create the local fallback account before enabling AAA. #}
+username {{ base_local_admin_username }} privilege 15 secret 9 {{ base_local_admin_secret_hash }}
+enable secret 9 {{ base_enable_secret_hash }}
+!
+aaa new-model
+!
+{% for server in base_tacacs_servers %}
+tacacs server {{ server.name }}
+ address ipv4 {{ server.address }}
+ key {{ base_tacacs_key }}
+!
+{% endfor %}
+aaa group server tacacs+ {{ base_tacacs_group }}
+{% for server in base_tacacs_servers %}
+ server name {{ server.name }}
+{% endfor %}
+!
+ip tacacs source-interface {{ base_mgmt_interface }}
+!
+aaa authentication login default group {{ base_tacacs_group }} local
+aaa authorization exec default group {{ base_tacacs_group }} local if-authenticated
+aaa authorization commands 15 default group {{ base_tacacs_group }} local if-authenticated
+aaa accounting exec default start-stop group {{ base_tacacs_group }}
+aaa accounting commands 15 default start-stop group {{ base_tacacs_group }}

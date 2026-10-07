@@ -1,0 +1,26 @@
+#jinja2: keep_trailing_newline: True
+!
+! ===== Hostname =====
+{% include 'base/hostname.j2' %}
+!
+! ===== AAA and TACACS+ =====
+{% include 'base/aaa.j2' %}
+!
+! ===== DNS =====
+{% include 'base/dns.j2' %}
+!
+! ===== NTP =====
+{% include 'base/ntp.j2' %}
+!
+! ===== Syslog =====
+{% include 'base/syslog.j2' %}
+!
+! ===== SNMPv3 =====
+{% include 'base/snmp.j2' %}
+!
+! ===== SSH hardening =====
+{% include 'base/ssh.j2' %}
+!
+! ===== Banners =====
+{% include 'base/banners.j2' %}
+!

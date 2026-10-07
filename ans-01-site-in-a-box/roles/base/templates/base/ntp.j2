@@ -1,0 +1,8 @@
+clock timezone {{ base_timezone }}
+{% if base_summer_time %}
+clock summer-time {{ base_summer_time }}
+{% endif %}
+{% for server in base_ntp_servers %}
+ntp server {{ server.address }}{{ ' prefer' if server.prefer | default(false) else '' }}
+{% endfor %}
+ntp source {{ base_mgmt_interface }}

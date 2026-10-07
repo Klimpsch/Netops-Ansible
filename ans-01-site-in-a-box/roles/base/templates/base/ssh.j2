@@ -1,0 +1,32 @@
+ip ssh version 2
+ip ssh time-out {{ base_ssh_timeout }}
+ip ssh authentication-retries {{ base_ssh_retries }}
+ip ssh source-interface {{ base_mgmt_interface }}
+ip ssh dh min size 2048
+ip ssh server algorithm encryption {{ base_ssh_encryption }}
+ip ssh server algorithm mac {{ base_ssh_mac }}
+ip ssh server algorithm kex {{ base_ssh_kex }}
+!
+no ip http server
+no ip http secure-server
+service password-encryption
+!
+ip access-list standard {{ base_mgmt_acl_name }}
+{% for network in base_mgmt_allowed %}
+ permit {{ network }}
+{% endfor %}
+!
+login block-for 120 attempts 3 within 60
+login quiet-mode access-class {{ base_mgmt_acl_name }}
+login on-failure log
+login on-success log
+!
+line con 0
+ exec-timeout {{ base_exec_timeout }}
+ logging synchronous
+line vty {{ base_vty_range }}
+ access-class {{ base_mgmt_acl_name }} in vrf-also
+ exec-timeout {{ base_exec_timeout }}
+ logging synchronous
+ transport input ssh
+ transport output ssh

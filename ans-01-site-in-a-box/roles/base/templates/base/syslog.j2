@@ -1,0 +1,9 @@
+service timestamps debug datetime msec localtime show-timezone
+service timestamps log datetime msec localtime show-timezone
+logging buffered {{ base_syslog_buffer_size }}
+logging trap {{ base_syslog_trap_level }}
+logging origin-id hostname
+logging source-interface {{ base_mgmt_interface }}
+{% for host in base_syslog_hosts %}
+logging host {{ host }}
+{% endfor %}

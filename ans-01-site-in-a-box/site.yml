@@ -1,0 +1,6 @@
+---
+- name: Apply the base config
+  hosts: ios
+  gather_facts: false
+  roles:
+    - base

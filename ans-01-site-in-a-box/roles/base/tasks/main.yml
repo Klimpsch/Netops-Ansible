@@ -1,0 +1,42 @@
+---
+- name: Check that required variables are set
+  ansible.builtin.assert:
+    that:
+      - base_ntp_servers | length > 0
+      - base_dns_servers | length > 0
+      - base_tacacs_servers | length > 0
+      - base_snmp_allowed | length > 0
+      # An empty VTY ACL denies all SSH and locks you out.
+      - base_mgmt_allowed | length > 0
+      - base_local_admin_secret_hash is defined
+      - base_enable_secret_hash is defined
+      - base_tacacs_key is defined
+      - base_snmp_auth_password is defined
+      - base_snmp_priv_password is defined
+      - "'@' not in base_banner_login"
+      - "'@' not in base_banner_exec"
+    fail_msg: "Base role variables are missing or invalid. See roles/base/defaults/main.yml."
+    quiet: true
+
+- name: Create the build directory
+  ansible.builtin.file:
+    path: "{{ base_build_dir }}"
+    state: directory
+    mode: "0700"
+  delegate_to: localhost
+  run_once: true
+  check_mode: false
+
+- name: Render the base config
+  ansible.builtin.template:
+    src: base.j2
+    dest: "{{ base_build_dir }}/{{ inventory_hostname }}.cfg"
+    mode: "0600"
+    lstrip_blocks: true
+  delegate_to: localhost
+  check_mode: false
+
+- name: Push the base config
+  cisco.ios.ios_config:
+    src: "{{ base_build_dir }}/{{ inventory_hostname }}.cfg"
+  when: base_push | bool

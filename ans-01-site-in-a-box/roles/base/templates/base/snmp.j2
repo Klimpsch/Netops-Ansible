@@ -1,0 +1,18 @@
+ip access-list standard {{ base_snmp_acl_name }}
+{% for network in base_snmp_allowed %}
+ permit {{ network }}
+{% endfor %}
+!
+snmp-server view {{ base_snmp_view }} iso included
+snmp-server group {{ base_snmp_group }} v3 priv read {{ base_snmp_view }} access {{ base_snmp_acl_name }}
+snmp-server user {{ base_snmp_user }} {{ base_snmp_group }} v3 auth {{ base_snmp_auth_protocol }} {{ base_snmp_auth_password }} priv {{ base_snmp_priv_protocol }} {{ base_snmp_priv_password }}
+{% if base_snmp_location %}
+snmp-server location {{ base_snmp_location }}
+{% endif %}
+{% if base_snmp_contact %}
+snmp-server contact {{ base_snmp_contact }}
+{% endif %}
+snmp-server trap-source {{ base_mgmt_interface }}
+{% for host in base_snmp_trap_hosts %}
+snmp-server host {{ host }} version 3 priv {{ base_snmp_user }}
+{% endfor %}

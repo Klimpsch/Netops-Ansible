@@ -1,0 +1,15 @@
+---
+# PLACEHOLDERS ONLY. Replace the values, then encrypt this file before committing:
+#   ansible-vault encrypt inventory/group_vars/all/vault.yml
+#
+# Get a type 9 (scrypt) hash by configuring the password on a lab device with
+# "username x algorithm-type scrypt secret <password>" and copying the hash
+# from "show running-config". Storing the hash keeps runs idempotent.
+
+vault_local_admin_password: REPLACE_ME
+vault_local_admin_secret_hash: $9$REPLACE_WITH_TYPE_9_HASH
+vault_enable_password: REPLACE_ME
+vault_enable_secret_hash: $9$REPLACE_WITH_TYPE_9_HASH
+vault_tacacs_key: REPLACE_ME
+vault_snmp_auth_password: REPLACE_ME_AUTH
+vault_snmp_priv_password: REPLACE_ME_PRIV
