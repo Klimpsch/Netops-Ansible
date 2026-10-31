@@ -1,0 +1,22 @@
+---
+# Basic reachability test: ICMP ping from the Ansible host, then an SSH login check.
+- name: Ping test
+  hosts: routers
+  gather_facts: false
+
+  tasks:
+    - name: ICMP ping from control node
+      ansible.builtin.command: "ping -c 2 -W 2 {{ ansible_host }}"
+      delegate_to: localhost
+      vars:
+        ansible_connection: local
+      changed_when: false
+
+    - name: Run show version
+      cisco.ios.ios_command:
+        commands: show version
+      register: ver
+
+    - name: Show result
+      ansible.builtin.debug:
+        msg: "{{ inventory_hostname }} ({{ ansible_host }}) - {{ ver.stdout[0] | regex_search('Version [^, ]+') }}"

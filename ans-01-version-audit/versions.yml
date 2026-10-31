@@ -1,0 +1,18 @@
+---
+# Grab software version, model and serial from each router and print them.
+- name: Grab router versions
+  hosts: routers
+  gather_facts: false
+
+  tasks:
+    - name: Gather minimal device facts
+      cisco.ios.ios_facts:
+        gather_subset: min
+
+    - name: Show version
+      ansible.builtin.debug:
+        msg: >-
+          {{ inventory_hostname }} ({{ ansible_host }}) |
+          {{ ansible_net_model | default('n/a') }} |
+          version {{ ansible_net_version }} |
+          serial {{ ansible_net_serialnum | default('n/a') }}
