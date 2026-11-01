@@ -1,5 +1,5 @@
 ---
-# Basic reachability test: ICMP ping from the Ansible host, then an SSH login check.
+# Basic reachability test
 - name: Ping test
   hosts: routers
   gather_facts: false

@@ -1,0 +1,46 @@
+---
+- name: Grab router versions
+  hosts: routers
+  gather_facts: false
+
+  tasks:
+    - name: Gather minimal device facts
+      cisco.ios.ios_facts:
+        gather_subset: min
+
+    - name: Show version
+      ansible.builtin.debug:
+        msg: >-
+          {{ inventory_hostname }} ({{ ansible_host }}) |
+          {{ ansible_net_model | default('n/a') }} |
+          version {{ ansible_net_version }} |
+          serial {{ ansible_net_serialnum | default('n/a') }}
+
+- name: Write versions CSV
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+    csv_dir: "{{ playbook_dir }}/reports"
+    csv_file: "{{ csv_dir }}/versions_{{ lookup('pipe', 'date +%Y%m%d_%H%M') }}.csv"
+
+  tasks:
+    - name: Make sure the reports folder exists
+      ansible.builtin.file:
+        path: "{{ csv_dir }}"
+        state: directory
+        mode: "0755"
+
+    - name: Write CSV
+      ansible.builtin.copy:
+        dest: "{{ csv_file }}"
+        mode: "0644"
+        content: |
+          router,ip,model,version,serial
+          {% for h in groups['routers'] | sort if hostvars[h].ansible_net_version is defined %}
+          {{ h }},{{ hostvars[h].ansible_host | default('n/a') }},{{ hostvars[h].ansible_net_model | default('n/a') }},{{ hostvars[h].ansible_net_version }},{{ hostvars[h].ansible_net_serialnum | default('n/a') }}
+          {% endfor %}
+
+    - name: Show where the CSV went
+      ansible.builtin.debug:
+        msg: "CSV written to {{ csv_file }}"
