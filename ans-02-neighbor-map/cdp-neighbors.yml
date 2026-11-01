@@ -14,9 +14,9 @@
     - name: Show cdp neighbors
       ansible.builtin.debug:
         msg: >-
-          {{ inventory_hostname }} ({{ ansible_host }}) |
-          {{ ansible_net_model | default('n/a') }} |
-          CDP {{ ansible_net_neighbors }}
-
-
-
+          {{ inventory_hostname }} {{ item.0.key }} ->
+          {{ item.1.host }} {{ item.1.port }}
+          ({{ item.1.ip | default('no ip') }})
+      loop: "{{ ansible_facts.net_neighbors | dict2items | subelements('value') }}"
+      loop_control:
+        label: "{{ item.0.key }}"
