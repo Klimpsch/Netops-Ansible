@@ -1,0 +1,4 @@
+device,local_interface,neighbor,neighbor_ip,neighbor_port,platform
+R1,GigabitEthernet2,R2.lab.local,10.0.12.2,GigabitEthernet2,cisco CSR1000V
+R1,GigabitEthernet4,R3.lab.local,10.0.13.2,GigabitEthernet4,cisco CSR1000V
+R1,GigabitEthernet3,R4.lab.local,10.0.41.1,GigabitEthernet3,cisco CSR1000V
