@@ -1,0 +1,22 @@
+---
+- name: Deploy ACL - Backup first
+  hosts: core_hosts
+  gather_facts: false
+
+  tasks:
+    - name: Deploy ACL and backup config
+      cisco.ios.ios_config:
+        backup: true
+        backup_options:
+          dir_path: backup
+          filename: "{{ inventory_hostname }}-before-acl.cfg"
+        parents: ip access-list extended MGMT-IN
+        lines:
+          - 10 permit tcp 192.168.0.0 0.0.0.255 any eq 22
+          - 20 permit icmp any any
+          - 30 deny ip any any log
+      notify: Save config
+  handlers:
+    - name: Save config
+      cisco.ios.ios_config:
+        save_when: modified
