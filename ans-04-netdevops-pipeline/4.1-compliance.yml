@@ -1,0 +1,23 @@
+---
+- name: Check backed-up configs for NTP and a banner
+  hosts: routers
+  gather_facts: false
+
+  tasks:
+    - name: Read this router's backup file
+      ansible.builtin.set_fact:
+        running: "{{ lookup('ansible.builtin.file', 'backups/' ~ inventory_hostname ~ '.cfg', errors='ignore') | default('', true) }}"
+
+    - name: Check each rule
+      ansible.builtin.set_fact:
+        has_backup: "{{ running | length > 0 }}"
+        has_ntp: "{{ running is search('^ntp server', multiline=True) }}"
+        has_banner: "{{ running is search('^banner motd', multiline=True) }}"
+
+    - name: Compliance report
+      ansible.builtin.debug:
+        msg:
+          - "No backup file: {{ ansible_play_hosts | map('extract', hostvars) | rejectattr('has_backup') | map(attribute='inventory_hostname') | list }}"
+          - "Missing NTP:    {{ ansible_play_hosts | map('extract', hostvars) | rejectattr('has_ntp') | map(attribute='inventory_hostname') | list }}"
+          - "Missing banner: {{ ansible_play_hosts | map('extract', hostvars) | rejectattr('has_banner') | map(attribute='inventory_hostname') | list }}"
+      run_once: true

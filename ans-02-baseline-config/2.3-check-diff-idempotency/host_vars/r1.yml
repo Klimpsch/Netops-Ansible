@@ -1,0 +1,26 @@
+interfaces:
+  - name: Loopback0
+    ip: 10.255.0.1
+    mask: 255.255.255.0
+
+  - name: Loopback99
+    ip: 10.0.0.250
+    mask: 255.255.255.255
+
+  - name: GigabitEthernet1
+    shutdown: true
+
+  - name: GigabitEthernet2
+    description: to R2
+    ip: 10.0.12.1
+    mask: 255.255.255.252
+
+  - name: GigabitEthernet3
+    description: to R4
+    ip: 10.0.41.2
+    mask: 255.255.255.252
+
+  - name: GigabitEthernet4
+    description: to R3 (cross)
+    ip: 10.0.13.1
+    mask: 255.255.255.252

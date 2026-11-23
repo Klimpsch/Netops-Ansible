@@ -1,0 +1,26 @@
+---
+- name: Back up running configs and commit them to Git
+  hosts: routers
+  gather_facts: false
+
+  tasks:
+    - name: Save running config to backups/<host>.cfg
+      cisco.ios.ios_config:
+        backup: true
+        backup_options:
+          dir_path: backups
+          filename: "{{ inventory_hostname }}.cfg"
+
+    - name: Stage the backups in Git
+      ansible.builtin.command: git add backups  # noqa: command-instead-of-module
+      delegate_to: localhost
+      run_once: true
+      changed_when: false
+
+    - name: Commit (only if a config changed)
+      ansible.builtin.command: git commit -m "Config backup {{ now(fmt='%Y-%m-%d %H:%M') }}"  # noqa: command-instead-of-module
+      delegate_to: localhost
+      run_once: true
+      register: commit
+      changed_when: commit.rc == 0
+      failed_when: commit.rc not in [0, 1]

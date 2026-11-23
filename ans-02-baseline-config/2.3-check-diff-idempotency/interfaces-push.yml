@@ -1,0 +1,28 @@
+---
+- name: Push interface configs to core routers
+  hosts: core_hosts
+  gather_facts: false
+
+  tasks:
+    - name: Render interface config from template
+      ansible.builtin.template:
+        src: templates/interfaces.j2
+        dest: "configs/{{ inventory_hostname }}.cfg"
+      delegate_to: localhost
+      check_mode: false
+
+    - name: Push the generated configs
+      cisco.ios.ios_config:
+        src: "configs/{{ inventory_hostname }}.cfg"
+      check_mode: true
+      register: push_result
+      notify: Save config
+
+    - name: Show changes that would be made
+      ansible.builtin.debug:
+        var: push_result.updates
+
+  handlers:
+    - name: Save config
+      cisco.ios.ios_config:
+        save_when: modified

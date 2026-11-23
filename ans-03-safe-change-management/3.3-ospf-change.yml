@@ -1,0 +1,68 @@
+---
+- name: Change OSPF cost safely (abort if neighbours drop)
+  hosts: r1
+  gather_facts: false
+
+  vars:
+    change_interface: GigabitEthernet2
+    new_cost: 50
+
+  tasks:
+    - name: Pre-check - get OSPF neighbours
+      cisco.ios.ios_command:
+        commands: show ip ospf neighbor
+      register: ospf_pre
+
+    - name: Pre-check - count FULL neighbours
+      ansible.builtin.set_fact:
+        neighbours_before: "{{ ospf_pre.stdout[0] | regex_findall('FULL') | length }}"
+
+    - name: Pre-check - make sure OSPF is healthy before we touch it
+      ansible.builtin.assert:
+        that:
+          - neighbours_before | int > 0
+        fail_msg: "No FULL OSPF neighbours before the change. Not touching this router."
+        success_msg: "{{ neighbours_before }} FULL neighbours before the change."
+
+    - name: Make the change, roll back if the post-check fails
+      block:
+        - name: Change - set OSPF cost
+          cisco.ios.ios_config:
+            parents: "interface {{ change_interface }}"
+            lines:
+              - "ip ospf cost {{ new_cost }}"
+
+        - name: Wait for OSPF to settle
+          ansible.builtin.pause:
+            seconds: 15
+
+        - name: Post-check - get OSPF neighbours
+          cisco.ios.ios_command:
+            commands: show ip ospf neighbor
+          register: ospf_post
+
+        - name: Post-check - count FULL neighbours
+          ansible.builtin.set_fact:
+            neighbours_after: "{{ ospf_post.stdout[0] | regex_findall('FULL') | length }}"
+
+        - name: Post-check - no neighbours lost
+          ansible.builtin.assert:
+            that:
+              - neighbours_after | int >= neighbours_before | int
+            fail_msg: "Neighbours dropped from {{ neighbours_before }} to {{ neighbours_after }}!"
+            success_msg: "Still {{ neighbours_after }} FULL neighbours. Change is good."
+
+      rescue:
+        - name: Roll back - remove the cost change
+          cisco.ios.ios_config:
+            parents: "interface {{ change_interface }}"
+            lines:
+              - "no ip ospf cost {{ new_cost }}"
+
+        - name: Stop the play and report the failure
+          ansible.builtin.fail:
+            msg: "Change rolled back on {{ inventory_hostname }} because OSPF neighbours dropped."
+
+    - name: Save config (only reached if everything passed)
+      cisco.ios.ios_config:
+        save_when: modified

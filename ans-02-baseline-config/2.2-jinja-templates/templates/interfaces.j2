@@ -1,0 +1,21 @@
+{% for intf in interfaces %}
+interface {{ intf.name }}
+{% if intf.description is defined %}
+description {{ intf.description }}
+{% endif %}
+{% if intf.ip is defined %}
+ip address {{ intf.ip }} {{ intf.mask }}
+{% else %}
+no ip address
+{% endif %}
+{% if intf.shutdown | default(false) %}
+shutdown
+{% endif %}
+{% if intf.name.startswith('GigabitEthernet') %}
+negotiation auto
+cdp enable
+no mop enabled
+no mop sysid
+{% endif %}
+!
+{% endfor %}

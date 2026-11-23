@@ -1,0 +1,22 @@
+---
+- name: Push NTP to core routers
+  hosts: routers
+  gather_facts: false
+  vars_files:
+    - vars.yml
+
+
+  tasks:
+    - name: Add NTP servers
+      cisco.ios.ios_config:
+        lines:
+          - "ntp server {{ item }}"
+      loop: "{{ ntp_servers }}"
+      when: ansible_network_os == "cisco.ios.ios"
+      notify: save cisco
+
+  handlers:
+    - name: Save running config to startup
+      listen: save cisco
+      cisco.ios.ios_command:
+        commands: write memory
